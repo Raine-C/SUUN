@@ -2,183 +2,160 @@ import Navigation from '@/components/layout/Navigation'
 import Footer from '@/components/layout/Footer'
 import Link from 'next/link'
 import Image from 'next/image'
-import { getAllArticles } from '@/lib/contentful'
+import { getArticleBySlug, getAllArticles, getRecentArticles } from '@/lib/contentful'
+import { documentToReactComponents } from '@contentful/rich-text-react-renderer'
+import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 
-export const metadata: Metadata = {
-  title: '職人誌',
-  description: '由主理人記錄，從布料選擇到版型哲學，帶你深入訂製西服的世界。',
+export async function generateStaticParams() {
+  try {
+    const articles = await getAllArticles()
+    return articles.map((a) => ({ slug: a.slug }))
+  } catch {
+    return []
+  }
 }
 
-const CATEGORIES = [
-  { label: '全部文章', count: 12 },
-  { label: '布料選擇', count: 4 },
-  { label: '版型與剪裁', count: 3 },
-  { label: '工藝細節', count: 2 },
-  { label: '西裝保養', count: 2 },
-  { label: '作品故事', count: 1 },
-]
-
-const TAGS = ['布料', '工藝', '版型', '保養', '訂製指南', '作品', '季節']
-
-export default async function JournalPage() {
-  let articles = []
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   try {
-    articles = await getAllArticles()
+    const { slug } = await params
+    const article = await getArticleBySlug(slug)
+    if (!article) return { title: '職人誌' }
+    return {
+      title: article.fields.title,
+      description: article.fields.excerpt,
+    }
   } catch {
-    // Contentful not configured
+    return { title: '職人誌' }
   }
+}
+
+export default async function ArticleDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  let article = null
+  let relatedArticles = []
+  let body = null
+
+  try {
+    article = await getArticleBySlug(slug)
+    if (!article) notFound()
+    relatedArticles = await getRecentArticles(3)
+    body = article.fields.body
+      ? documentToReactComponents(article.fields.body as Parameters<typeof documentToReactComponents>[0])
+      : null
+  } catch {
+    // Placeholder UI
+  }
+
+  const title = article?.fields.title ?? '如何挑選適合的布料'
+  const author = article?.fields.author ?? 'Evan Huang'
+  const authorTitle = (article?.fields as { authorTitle?: string } | undefined)?.authorTitle ?? '曙溫 SUUN 主理人 · 首席裁縫師'
+  const publishedDate = article?.fields.publishedDate
+    ? new Date(article.fields.publishedDate).toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' })
+    : '2026 年 3 月 12 日'
+  const readingTime = article?.fields.readingTime ?? 8
+  const tags = (article?.fields.tags as string[] | undefined) ?? ['布料', '工藝', '訂製指南']
+  const heroImageUrl = (article?.fields.heroImage as { fields?: { file?: { url?: string } } } | undefined)?.fields?.file?.url
+    ? `https:${(article.fields.heroImage as { fields: { file: { url: string } } }).fields.file.url}`
+    : null
 
   return (
     <>
       <Navigation />
       <main className="pt-20">
-
-        {/* Hero banner */}
-        <section className="relative h-[644px] bg-[#1C1A17] overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#030081]/60 to-[#01002D]/80" />
-
-          {/* Text overlay */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-            <p className="font-inter font-medium text-[12px] tracking-[4px] uppercase text-[#AFD9F2] mb-6">
-              職人誌 · Artisan Journal
-            </p>
-            <h1 className="font-shippori text-[64px] tracking-[-0.5px] leading-[1.15] text-white mb-6">
-              關於西服的<br />一切知識與美學
-            </h1>
-            <p className="font-inter font-light text-[14px] leading-[1.8] text-[rgba(255,255,255,0.6)] max-w-[476px]">
-              由主理人記錄，從布料選擇到版型哲學，帶你深入訂製西服的世界。
-            </p>
-          </div>
-
-          {/* Latest article ticker */}
-          <div className="absolute bottom-0 left-16 right-16 flex items-center gap-6 py-5 border-t border-[rgba(255,255,255,0.15)]">
-            <span className="font-inter font-medium text-[12px] tracking-[2px] uppercase text-[#AFD9F2] shrink-0">最新文章</span>
-            <span className="font-shippori text-[22px] text-white">如何挑選適合的布料</span>
-            <Link href="/journal/how-to-choose-fabric" className="font-inter font-medium text-[11px] tracking-[2px] uppercase text-[#AFD9F2] border-b border-[#AFD9F2] pb-[1px] ml-auto hover:text-white transition-colors">
-              閱讀全文
-            </Link>
+        <section className="relative h-[777px] bg-[#1C1A17] overflow-hidden">
+          {heroImageUrl ? (
+            <Image src={heroImageUrl} alt={title} fill className="object-cover opacity-60" />
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-[#030081]/50 to-[#01002D]/80" />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-[rgba(1,0,45,0.8)] to-transparent" />
+          <div className="absolute bottom-24 left-1/2 -translate-x-1/2 w-[860px] text-center">
+            <p className="font-inter font-medium text-[12px] tracking-[4px] uppercase text-[#AFD9F2] mb-6">職人誌 · Artisan Journal</p>
+            <h1 className="font-shippori text-[58px] tracking-[-0.5px] leading-[1.15] text-white mb-8">{title}</h1>
           </div>
         </section>
 
-        {/* Main content: sidebar + articles */}
-        <section className="bg-[#FBF9FF]">
-          <div className="max-w-[1440px] mx-auto flex">
-
-            {/* Sidebar */}
-            <aside className="w-[320px] shrink-0 px-16 py-16 border-r border-[#D9D9EC]">
-              <div className="sticky top-28">
-
-                {/* Search */}
-                <div className="mb-10">
-                  <p className="font-inter font-medium text-[12px] tracking-[2px] uppercase text-[#3D4C55] mb-4">搜尋文章</p>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      placeholder="輸入關鍵字…"
-                      className="w-full border border-[#D9D9EC] px-4 py-3 font-inter text-[14px] text-[#01002D] placeholder:text-[#9EC3DA] focus:outline-none focus:border-[#D4C6FC]"
-                    />
-                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#9EC3DA]">↗</span>
-                  </div>
-                </div>
-
-                {/* Categories */}
-                <div className="mb-10">
-                  <p className="font-inter font-medium text-[12px] tracking-[2px] uppercase text-[#3D4C55] mb-4">文章主題</p>
-                  <div className="flex flex-col">
-                    {CATEGORIES.map(({ label, count }) => (
-                      <div key={label} className="flex items-center justify-between py-3 border-b border-[#D9D9EC] last:border-0 hover:text-[#030074] cursor-pointer transition-colors group">
-                        <span className="font-inter text-[15px] text-[#01002D] group-hover:text-[#030074]">{label}</span>
-                        <span className="font-inter text-[12px] text-[#9EC3DA]">{count}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Tags */}
-                <div>
-                  <p className="font-inter font-medium text-[12px] tracking-[2px] uppercase text-[#3D4C55] mb-4">標籤</p>
-                  <div className="flex flex-wrap gap-2">
-                    {TAGS.map((tag) => (
-                      <button key={tag} className="px-3 py-1 border border-[#D4C6FC] text-[#5F5971] font-inter text-[12px] hover:bg-[#D4C6FC] transition-colors">
-                        {tag}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+        <div className="bg-[#FBF9FF] border-b border-[#D9D9EC]">
+          <div className="max-w-[860px] mx-auto py-10 flex items-center justify-between">
+            <div className="flex items-center gap-5">
+              <div className="w-[52px] h-[52px] rounded-full bg-[#D9D9EC]" />
+              <div>
+                <p className="font-inter text-[10px] tracking-[2px] uppercase text-[#9EC3DA] mb-1">作者 Author</p>
+                <p className="font-inter font-medium text-[16px] text-[#01002D]">{author}</p>
+                <p className="font-inter text-[13px] text-[#9EC3DA]">{authorTitle}</p>
               </div>
-            </aside>
-
-            {/* Article list */}
-            <div className="flex-1 px-16 py-16">
-              <p className="font-inter text-[15px] text-[#5F5971] mb-10">共 {articles.length || 12} 篇文章</p>
-
-              <div className="flex flex-col gap-12">
-                {articles.length > 0 ? (
-                  articles.map((article) => (
-                    <Link key={article.id} href={`/journal/${article.slug}`} className="group flex gap-10 pb-12 border-b border-[#D9D9EC] last:border-0">
-                      <div className="relative w-[280px] h-[210px] shrink-0 bg-[#D9D9EC] overflow-hidden">
-                        {article.heroImageUrl && (
-                          <Image
-                            src={article.heroImageUrl}
-                            alt={article.title}
-                            fill
-                            className="object-cover transition-transform duration-700 group-hover:scale-105"
-                          />
-                        )}
-                      </div>
-                      <div className="flex flex-col justify-between flex-1 py-2">
-                        <div>
-                          <p className="font-inter font-medium text-[11px] tracking-[2px] uppercase text-[#9EC3DA] mb-3">{article.category}</p>
-                          <h2 className="font-shippori text-[28px] leading-[1.3] text-[#01002D] mb-4 group-hover:text-[#030074] transition-colors">
-                            {article.title}
-                          </h2>
-                          <p className="font-inter font-light text-[14px] leading-[1.8] text-[#3D4C55] line-clamp-2">
-                            {article.excerpt}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-4">
-                          <span className="font-inter text-[13px] text-[#9EC3DA]">
-                            {new Date(article.publishedDate).toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' })}
-                          </span>
-                          <span className="text-[#D4C6FC]">·</span>
-                          <span className="font-inter text-[13px] text-[#9EC3DA]">{article.readingTime} 分鐘閱讀</span>
-                          <Link href={`/journal/${article.slug}`} className="ml-auto font-inter font-medium text-[11px] tracking-[2px] uppercase text-[#5F5971] border-b border-[#D4C6FC] pb-[1px] hover:text-[#030074] transition-colors">
-                            閱讀全文
-                          </Link>
-                        </div>
-                      </div>
-                    </Link>
-                  ))
-                ) : (
-                  // Placeholder articles
-                  [
-                    { title: '西裝版型入門：合身、修身與英式剪裁的差異', cat: '版型與剪裁', date: '2026 年 2 月 8 日', time: 6 },
-                    { title: '一件好西裝，如何讓它陪你走過二十年', cat: '西裝保養', date: '2026 年 1 月 20 日', time: 5 },
-                    { title: '格紋紳士 The Savile — 一件關於精準的作品', cat: '作品故事', date: '2025 年 12 月 5 日', time: 7 },
-                    { title: '手工訂製的意義：為什麼我們仍然堅持一針一線', cat: '工藝細節', date: '2025 年 11 月 18 日', time: 9 },
-                  ].map((a, i) => (
-                    <div key={i} className="group flex gap-10 pb-12 border-b border-[#D9D9EC] last:border-0">
-                      <div className="w-[280px] h-[210px] shrink-0 bg-[#D9D9EC]" />
-                      <div className="flex flex-col justify-between flex-1 py-2">
-                        <div>
-                          <p className="font-inter font-medium text-[11px] tracking-[2px] uppercase text-[#9EC3DA] mb-3">{a.cat}</p>
-                          <h2 className="font-shippori text-[28px] leading-[1.3] text-[#01002D] mb-4">{a.title}</h2>
-                        </div>
-                        <div className="flex items-center gap-4">
-                          <span className="font-inter text-[13px] text-[#9EC3DA]">{a.date}</span>
-                          <span className="text-[#D4C6FC]">·</span>
-                          <span className="font-inter text-[13px] text-[#9EC3DA]">{a.time} 分鐘閱讀</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                )}
+            </div>
+            <div className="flex items-center gap-10">
+              <div>
+                <p className="font-inter text-[10px] tracking-[2px] uppercase text-[#9EC3DA] mb-1">發佈日期</p>
+                <p className="font-inter font-medium text-[14px] text-[#01002D]">{publishedDate}</p>
+              </div>
+              <div>
+                <p className="font-inter text-[10px] tracking-[2px] uppercase text-[#9EC3DA] mb-1">閱讀時間</p>
+                <p className="font-inter font-medium text-[14px] text-[#01002D]">{readingTime} 分鐘</p>
+              </div>
+              <div className="flex gap-2">
+                {tags.map((tag) => (
+                  <span key={tag} className="px-3 py-1 border border-[#D4C6FC] font-inter text-[11px] tracking-[1px] text-[#5F5971]">{tag}</span>
+                ))}
               </div>
             </div>
           </div>
-        </section>
+        </div>
 
+        <article className="bg-[#FBF9FF]">
+          <div className="max-w-[1440px] mx-auto flex">
+            <aside className="w-[260px] shrink-0 px-16 py-16">
+              <div className="sticky top-28">
+                <p className="font-inter font-medium text-[12px] tracking-[2px] uppercase text-[#3D4C55] mb-6">文章分類</p>
+                <nav className="flex flex-col gap-0">
+                  {['布料的語言', '認識布料', '產地與品牌', '給初次訂製者的建議'].map((section) => (
+                    <a key={section} href="#" className="py-3 font-inter text-[14px] text-[#5F5971] border-b border-[#D9D9EC] hover:text-[#030074] transition-colors">{section}</a>
+                  ))}
+                </nav>
+              </div>
+            </aside>
+            <div className="flex-1 px-16 py-16 max-w-[720px]">
+              {body ? (
+                <div className="prose prose-stone prose-lg max-w-none">{body}</div>
+              ) : (
+                <div className="space-y-8 font-inter font-light text-[15px] leading-[1.9] text-[#3D4C55]">
+                  <blockquote className="font-shippori text-[24px] leading-[1.6] text-[#01002D] border-l-4 border-[#D4C6FC] pl-8 py-4 mb-12">
+                    「布料是西裝的靈魂。在你決定版型之前，先學會聆聽一匹布的語言。」
+                  </blockquote>
+                  <p>許多第一次訂製西裝的客人，來到工作室時最常問的問題是：「我應該選什麼顏色？」這個問題本身沒有錯，但在色彩之前，有一個更根本的問題需要先回答：你選的是什麼布料？</p>
+                  <p>布料的選擇是訂製過程中影響最深遠的一個決定。它決定了西裝的垂感、耐久性、穿著季節，以及最終呈現在你身上的整體氣質。</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </article>
+
+        <section className="bg-[#FBF9FF] border-t border-[#D9D9EC] px-16 py-20">
+          <div className="flex items-end justify-between mb-12">
+            <h2 className="font-shippori text-[42px] text-[#01002D]">職人誌精選</h2>
+            <Link href="/journal" className="font-inter font-medium text-[11px] tracking-[2px] uppercase text-[#5F5971] border-b border-[#D4C6FC] pb-[1px] hover:text-[#030074] transition-colors">查看所有文章</Link>
+          </div>
+          <div className="grid grid-cols-3 gap-8">
+            {relatedArticles.length > 0 ? relatedArticles.map((a) => (
+              <Link key={a.id} href={`/journal/${a.slug}`} className="group">
+                <div className="relative aspect-[3/2] bg-[#D9D9EC] overflow-hidden mb-6">
+                  {a.heroImageUrl && <Image src={a.heroImageUrl} alt={a.title} fill className="object-cover transition-transform duration-700 group-hover:scale-105" />}
+                </div>
+                <p className="font-inter text-[11px] tracking-[2px] uppercase text-[#9EC3DA] mb-2">{a.category}</p>
+                <h3 className="font-shippori text-[22px] leading-[1.4] text-[#01002D] mb-3 group-hover:text-[#030074] transition-colors">{a.title}</h3>
+              </Link>
+            )) : (
+              ['一件好西裝，如何讓它陪你走過二十年', '格紋紳士 The Savile', '西裝版型入門'].map((t, i) => (
+                <div key={i}>
+                  <div className="relative aspect-[3/2] bg-[#D9D9EC] mb-6" />
+                  <h3 className="font-shippori text-[22px] leading-[1.4] text-[#01002D]">{t}</h3>
+                </div>
+              ))
+            )}
+          </div>
+        </section>
       </main>
       <Footer />
     </>
