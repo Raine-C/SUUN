@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Shippori+Mincho:wght@400;600&family=Inter:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* SUUN Color System */
+  --suun-dark-blue-darkest: #01003A;
+  --suun-dark-blue-darker: #01002D;
+  --suun-dark-blue-normal: #030081;
+  --suun-dark-blue-hover: #030074;
+  --suun-dark-blue-light-hover: #D9D9EC;
+  --suun-purple-light: #FBF9FF;
+  --suun-purple-light-active: #F2EDFE;
+  --suun-purple-normal: #D4C6FC;
+  --suun-purple-normal-hover: #BFB2E3;
+  --suun-purple-dark-active: #5F5971;
+  --suun-purple-darker: #4A4558;
+  --suun-baby-blue-light: #F7FBFE;
+  --suun-baby-blue-normal: #AFD9F2;
+  --suun-baby-blue-normal-hover: #9EC3DA;
+  --suun-baby-blue-darker: #3D4C55;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #FBF9FF;
+  color: #01002D;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography utilities */
+.font-cormorant { font-family: 'Cormorant Garamond', serif; }
+.font-shippori { font-family: 'Shippori Mincho', serif; }
+.font-inter { font-family: 'Inter', sans-serif; }
+
+/* SUUN Button */
+.btn-suun-primary {
+  background-color: var(--suun-purple-normal);
+  color: var(--suun-dark-blue-darkest);
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 14px 28px;
+  transition: background-color 0.2s ease;
+}
+
+.btn-suun-primary:hover {
+  background-color: var(--suun-purple-normal-hover);
+}
+
+.btn-suun-outline {
+  border: 0.833px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.7);
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 14px 28px;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-suun-outline:hover {
+  border-color: rgba(255, 255, 255, 0.5);
+  color: white;
+}
+
+/* Label / tag style */
+.suun-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--suun-dark-blue-hover);
+}
+
+/* Nav link */
+.nav-link {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  font-style: italic;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--suun-purple-dark-active);
+  transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+  color: var(--suun-dark-blue-normal);
+}
+
+/* Divider line */
+.suun-divider {
+  border-color: rgba(212, 198, 252, 0.4);
+}
+
+/* Form inputs dark */
+.input-dark {
+  background: rgba(255, 255, 255, 0.06);
+  border: 0.833px solid rgba(255, 255, 255, 0.12);
+  color: white;
+  padding: 16px 20px;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  transition: border-color 0.2s ease;
+}
+
+.input-dark::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.input-dark:focus {
+  outline: none;
+  border-color: rgba(212, 198, 252, 0.5);
+}
+
+/* Smooth image loading */
+img {
+  transition: opacity 0.3s ease;
+}
