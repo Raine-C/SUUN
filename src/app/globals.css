@@ -1,0 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Shippori+Mincho:wght@400;600&family=Inter:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #FBF9FF;
+  color: #01002D;
+  -webkit-font-smoothing: antialiased;
+}
+
+.suun-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: #030074;
+}
+
+.nav-link {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  font-style: italic;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #5F5971;
+  transition: color 0.2s;
+}
+.nav-link:hover { color: #030081; }
+
+.btn-primary {
+  background-color: #D4C6FC;
+  color: #01003A;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 14px 28px;
+  display: inline-block;
+  transition: background-color 0.2s;
+}
+.btn-primary:hover { background-color: #BFB2E3; }
+
+.input-dark {
+  background: rgba(255,255,255,0.06);
+  border: 0.833px solid rgba(255,255,255,0.12);
+  color: white;
+  padding: 14px 20px;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  width: 100%;
+}
+.input-dark::placeholder { color: rgba(255,255,255,0.3); }
+.input-dark:focus { outline: none; border-color: rgba(212,198,252,0.5); }
