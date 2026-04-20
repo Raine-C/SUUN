@@ -3,8 +3,8 @@ import Link from 'next/link'
 export default function Footer() {
   return (
     <footer className="relative bg-[#0F0E0C] border-t border-[#1E1D19]">
-      <div className="max-w-[1440px] mx-auto px-16 pt-20 pb-10">
-        <div className="grid grid-cols-4 gap-8 pb-16">
+      <div className="max-w-[1440px] mx-auto px-6 md:px-16 pt-16 md:pt-20 pb-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 pb-12 md:pb-16">
           <div>
             <p className="font-shippori text-[28px] tracking-[4px] uppercase text-[#FBF9FF] mb-3">SUUN</p>
             <p className="font-inter text-[11px] tracking-[3px] uppercase text-[#AFD9F2] mb-5">Est. 2019 · 手工訂製西服 · TAIPEI</p>
@@ -34,7 +34,7 @@ export default function Footer() {
             </div>
           </div>
         </div>
-        <div className="border-t border-[rgba(251,249,255,0.3)] pt-5 flex items-center justify-between">
+        <div className="border-t border-[rgba(251,249,255,0.3)] pt-5 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="font-inter text-[12px] text-[#F7FBFE]">© 2026 SUUN E DESIGN. All rights reserved.</p>
           <div className="flex items-center gap-8">
             {['Facebook', 'Instagram', 'Threads'].map((s) => (
