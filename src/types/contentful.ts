@@ -7,7 +7,8 @@ export interface WorkCard {
   category: string
   fabric: string
   fabricOrigin: string
-  cut: string
+  composition: string
+  description: string
   heroImageUrl: string
   badge?: string
 }

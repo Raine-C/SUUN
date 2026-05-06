@@ -1,5 +1,6 @@
 import Navigation from '@/components/layout/Navigation'
 import Footer from '@/components/layout/Footer'
+import BookingForm from '@/components/BookingForm'
 import Link from 'next/link'
 import Image from 'next/image'
 import { getFeaturedWorks } from '@/lib/contentful'
@@ -31,7 +32,7 @@ export default async function HomePage() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
               <Link href="/#booking" className="btn-primary">Begin Your Commission</Link>
               <Link href="/works" className="border border-[rgba(255,255,255,0.2)] text-[rgba(255,255,255,0.7)] font-inter font-bold text-[11px] tracking-[2px] uppercase px-7 py-4 hover:border-[rgba(255,255,255,0.5)] hover:text-white transition-all">
-                View Collection
+                作品集
               </Link>
             </div>
           </div>
@@ -89,12 +90,13 @@ export default async function HomePage() {
             <h2 className="font-shippori text-[36px] md:text-[52px] tracking-[-0.5px] text-[#01002D] mb-4">量身訂做<br />個人風格</h2>
             <p className="font-inter font-light text-[14px] text-[#030074]">一套完整西裝訂製時間，平均需要 8–12 週完成。</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 md:gap-8">
             {[
-              { num: 'I', title: '需求諮詢', desc: 'We begin with a private consultation to understand your style, lifestyle, and every occasion the suit must serve.' },
-              { num: 'II', title: '尺寸量身', desc: 'Browse our exclusive cloth room and select from over 3,000 rolls, with guidance from your personal tailor.' },
-              { num: 'III', title: '布料挑選', desc: 'Your suit is cut and refined across three meticulous fittings until every line and drape is flawless.' },
-              { num: 'IV', title: '試衣調整', desc: 'Hand-finished with horn buttons and your personal label, delivered in our signature garment case.' },
+              { num: 'I',   title: '需求諮詢', desc: '[待訂]' },
+              { num: 'II',  title: '尺寸量身', desc: '[待訂]' },
+              { num: 'III', title: '布料挑選', desc: '[待訂]' },
+              { num: 'IV',  title: '試衣調整', desc: '[待訂]' },
+              { num: 'V',   title: '維修諮詢', desc: '[待訂]' },
             ].map((step) => (
               <div key={step.num} className="flex flex-col items-center text-center">
                 <div className="w-14 h-14 rounded-full border border-[#9EC3DA] bg-[#FBF9FF] flex items-center justify-center mb-6">
@@ -129,18 +131,10 @@ export default async function HomePage() {
               <span className="text-[#D4C6FC]">曙溫 SUUN 工作室</span>
             </h2>
             <div className="font-inter font-light text-[14px] leading-[1.8] text-[rgba(255,255,255,0.5)] mb-8 md:mb-10">
-              <p>工作室地址：台北市中正區同安街 110 號</p>
-              <p>開放時間：星期一~星期六，10:00~17:00</p>
+              <p>工作室地址：台北市中正區汀州路二段177號</p>
+              <p>開放時間：時段採預約制</p>
             </div>
-            <form className="flex flex-col gap-5">
-              <input type="text" placeholder="希望怎麼稱呼" className="input-dark" />
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <input type="email" placeholder="Email" className="input-dark" />
-                <input type="text" placeholder="諮詢項目" className="input-dark" />
-              </div>
-              <input type="text" placeholder="拜訪工作室日期" className="input-dark" />
-              <button type="submit" className="btn-primary text-center cursor-pointer w-full">送出預約</button>
-            </form>
+            <BookingForm />
           </div>
         </section>
       </main>
