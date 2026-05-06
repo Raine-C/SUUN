@@ -28,7 +28,8 @@ export async function getAllWorks(): Promise<WorkCard[]> {
       category: String(f.category ?? ''),
       fabric: String(f.fabric ?? ''),
       fabricOrigin: String(f.fabricOrigin ?? ''),
-      cut: String(f.cut ?? ''),
+      composition: String(f.composition ?? ''),
+      description: String(f.description ?? ''),
       heroImageUrl: imgUrl(f.heroImage),
       badge: f.badge ? String(f.badge) : undefined,
     }
@@ -49,7 +50,8 @@ export async function getFeaturedWorks(): Promise<WorkCard[]> {
       category: String(f.category ?? ''),
       fabric: String(f.fabric ?? ''),
       fabricOrigin: String(f.fabricOrigin ?? ''),
-      cut: String(f.cut ?? ''),
+      composition: String(f.composition ?? ''),
+      description: String(f.description ?? ''),
       heroImageUrl: imgUrl(f.heroImage),
       badge: f.badge ? String(f.badge) : undefined,
     }
