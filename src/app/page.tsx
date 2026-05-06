@@ -30,7 +30,7 @@ export default async function HomePage() {
               Each suit begins with a conversation and ends with a garment that is entirely, irreducibly yours.
             </p>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
-              <Link href="/#booking" className="btn-primary">Begin Your Commission</Link>
+              <Link href="/#booking" className="btn-primary">預約製衣</Link>
               <Link href="/works" className="border border-[rgba(255,255,255,0.2)] text-[rgba(255,255,255,0.7)] font-inter font-bold text-[11px] tracking-[2px] uppercase px-7 py-4 hover:border-[rgba(255,255,255,0.5)] hover:text-white transition-all">
                 作品集
               </Link>

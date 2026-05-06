@@ -29,8 +29,8 @@ export default function Footer() {
           <div>
             <p className="font-inter font-medium text-[10px] tracking-[3px] uppercase text-[#AFD9F2] mb-6">工作室</p>
             <div className="flex flex-col gap-3">
-              <p className="font-inter font-light text-[13px] text-[#FBF9FF]">台北市中正區同安街110號</p>
-              <p className="font-inter font-light text-[13px] text-[#FBF9FF]">星期一~星期六 10:00–17:00</p>
+              <p className="font-inter font-light text-[13px] text-[#FBF9FF]">台北市中正區汀州路二段177號</p>
+              <p className="font-inter font-light text-[13px] text-[#FBF9FF]">時段採預約制</p>
             </div>
           </div>
         </div>
