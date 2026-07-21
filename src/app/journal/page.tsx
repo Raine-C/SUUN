@@ -7,6 +7,7 @@ import type { ArticleCard } from '@/types/contentful'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = { title: '職人誌' }
+export const revalidate = 60
 
 async function loadArticles(): Promise<ArticleCard[]> {
   try { return await getAllArticles() } catch { return [] }

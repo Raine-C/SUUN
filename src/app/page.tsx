@@ -6,6 +6,8 @@ import Image from 'next/image'
 import { getFeaturedWorks } from '@/lib/contentful'
 import type { WorkCard } from '@/types/contentful'
 
+export const revalidate = 60
+
 async function loadFeaturedWorks(): Promise<WorkCard[]> {
   try { return await getFeaturedWorks() } catch { return [] }
 }

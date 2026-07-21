@@ -8,6 +8,8 @@ import type { Metadata } from 'next'
 
 type Props = { params: Promise<{ slug: string }> }
 
+export const revalidate = 60
+
 export async function generateStaticParams() {
   try {
     const works = await getAllWorks()
