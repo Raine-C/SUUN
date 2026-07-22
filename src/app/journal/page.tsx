@@ -10,7 +10,7 @@ export const metadata: Metadata = { title: '職人誌' }
 export const revalidate = 60
 
 async function loadArticles(): Promise<ArticleCard[]> {
-  try { return await getAllArticles() } catch { return [] }
+  try { return await getAllArticles() } catch (err) { console.error('[journal] getAllArticles failed:', err); return [] }
 }
 
 const PLACEHOLDER_ARTICLES = [
