@@ -10,7 +10,7 @@ export const metadata: Metadata = { title: '訂製展示' }
 export const revalidate = 60
 
 async function loadWorks(): Promise<WorkCard[]> {
-  try { return await getAllWorks() } catch (err) { console.error('[works] getAllWorks failed:', err); return [] }
+  try { return await getAllWorks() } catch { return [] }
 }
 
 export default async function WorksPage() {

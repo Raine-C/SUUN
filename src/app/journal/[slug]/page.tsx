@@ -6,6 +6,51 @@ import { getArticleBySlug, getAllArticles, getRecentArticles } from '@/lib/conte
 import { notFound } from 'next/navigation'
 import type { ArticleCard } from '@/types/contentful'
 import type { Metadata } from 'next'
+import { documentToReactComponents, type Options } from '@contentful/rich-text-react-renderer'
+import { BLOCKS, INLINES, MARKS, type Document } from '@contentful/rich-text-types'
+
+const richTextOptions: Options = {
+  renderMark: {
+    [MARKS.BOLD]: (text) => <strong>{text}</strong>,
+    [MARKS.ITALIC]: (text) => <em>{text}</em>,
+    [MARKS.UNDERLINE]: (text) => <u>{text}</u>,
+    [MARKS.CODE]: (text) => <code className="px-1.5 py-0.5 bg-[#EFE9FB] text-[13px]">{text}</code>,
+  },
+  renderNode: {
+    [BLOCKS.PARAGRAPH]: (_node, children) => <p>{children}</p>,
+    [BLOCKS.HEADING_1]: (_node, children) => <h2 className="font-shippori text-[28px] md:text-[34px] text-[#01002D] mt-10 md:mt-12 mb-6">{children}</h2>,
+    [BLOCKS.HEADING_2]: (_node, children) => <h2 className="font-shippori text-[26px] md:text-[32px] text-[#01002D] mt-10 md:mt-12 mb-6">{children}</h2>,
+    [BLOCKS.HEADING_3]: (_node, children) => <h3 className="font-shippori text-[22px] md:text-[26px] text-[#01002D] mt-8 md:mt-10 mb-5">{children}</h3>,
+    [BLOCKS.HEADING_4]: (_node, children) => <h4 className="font-shippori text-[20px] text-[#01002D] mt-6 mb-4">{children}</h4>,
+    [BLOCKS.HEADING_5]: (_node, children) => <h5 className="font-inter font-medium text-[16px] text-[#01002D] mt-6 mb-4">{children}</h5>,
+    [BLOCKS.HEADING_6]: (_node, children) => <h6 className="font-inter font-medium text-[15px] text-[#01002D] mt-6 mb-4">{children}</h6>,
+    [BLOCKS.UL_LIST]: (_node, children) => <ul className="list-disc pl-6 space-y-2">{children}</ul>,
+    [BLOCKS.OL_LIST]: (_node, children) => <ol className="list-decimal pl-6 space-y-2">{children}</ol>,
+    [BLOCKS.LIST_ITEM]: (_node, children) => <li>{children}</li>,
+    [BLOCKS.QUOTE]: (_node, children) => (
+      <blockquote className="font-shippori text-[20px] md:text-[24px] leading-[1.6] text-[#01002D] border-l-4 border-[#D4C6FC] pl-6 md:pl-8 py-4 my-10 md:my-12">{children}</blockquote>
+    ),
+    [BLOCKS.HR]: () => <hr className="border-[#D9D9EC] my-10" />,
+    [BLOCKS.TABLE]: (_node, children) => (
+      <div className="overflow-x-auto my-10">
+        <table className="w-full border-collapse text-[14px]">{children}</table>
+      </div>
+    ),
+    [BLOCKS.TABLE_ROW]: (_node, children) => <tr>{children}</tr>,
+    [BLOCKS.TABLE_HEADER_CELL]: (_node, children) => <th className="border border-[#D9D9EC] p-3 bg-[#EFE9FB] text-left font-medium">{children}</th>,
+    [BLOCKS.TABLE_CELL]: (_node, children) => <td className="border border-[#D9D9EC] p-3 align-top">{children}</td>,
+    [BLOCKS.EMBEDDED_ASSET]: (node) => {
+      const url = node.data?.target?.fields?.file?.url as string | undefined
+      const alt = node.data?.target?.fields?.title as string | undefined
+      if (!url) return null
+      const src = url.startsWith('//') ? `https:${url}` : url
+      return <img src={src} alt={alt ?? ''} className="w-full my-10" />
+    },
+    [INLINES.HYPERLINK]: (node, children) => (
+      <a href={node.data?.uri} target="_blank" rel="noopener noreferrer" className="text-[#030074] underline hover:no-underline">{children}</a>
+    ),
+  },
+}
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -43,6 +88,7 @@ export default async function ArticleDetailPage({ params }: Props) {
   let tags: string[] = ['布料', '工藝', '訂製指南']
   let heroImageUrl = ''
   let relatedArticles: ArticleCard[] = []
+  let body: Document | null = null
 
   try {
     const article = await getArticleBySlug(slug)
@@ -59,6 +105,7 @@ export default async function ArticleDetailPage({ params }: Props) {
     const img = f.heroImage as { fields?: { file?: { url?: string } } } | undefined
     const url = img?.fields?.file?.url ?? ''
     heroImageUrl = url ? (url.startsWith('//') ? `https:${url}` : url) : ''
+    body = (f.body as Document) ?? null
     relatedArticles = await getRecentArticles(3)
   } catch {
     // use defaults
@@ -121,16 +168,11 @@ export default async function ArticleDetailPage({ params }: Props) {
               </div>
             </aside>
             <div className="flex-1 px-4 md:px-16 py-10 md:py-16 max-w-full lg:max-w-[720px]">
-              <div className="space-y-8 font-inter font-light text-[15px] leading-[1.9] text-[#3D4C55]">
-                <blockquote className="font-shippori text-[20px] md:text-[24px] leading-[1.6] text-[#01002D] border-l-4 border-[#D4C6FC] pl-6 md:pl-8 py-4 mb-10 md:mb-12">
-                  「布料是西裝的靈魂。在你決定版型之前，先學會聆聽一匹布的語言。」
-                </blockquote>
-                <h2 className="font-shippori text-[26px] md:text-[32px] text-[#01002D] mt-10 md:mt-12 mb-6">布料的語言</h2>
-                <p>許多第一次訂製西裝的客人，來到工作室時最常問的問題是：「我應該選什麼顏色？」這個問題本身沒有錯，但在色彩之前，有一個更根本的問題需要先回答：你選的是什麼布料？</p>
-                <p>布料的選擇是訂製過程中影響最深遠的一個決定。它決定了西裝的垂感、耐久性、穿著季節，以及最終呈現在你身上的整體氣質。</p>
-                <div className="relative aspect-[21/9] bg-[#D9D9EC] my-10" />
-                <h2 className="font-shippori text-[26px] md:text-[32px] text-[#01002D] mt-10 md:mt-12 mb-6">認識布料</h2>
-                <p>在曙溫工作室，我們主要使用四類布料：精紡羊毛（Worsted Wool）、法蘭絨（Flannel）、斜紋布（Tweed）與亞麻（Linen）。</p>
+              <div className="space-y-6 font-inter font-light text-[15px] leading-[1.9] text-[#3D4C55]">
+                {body
+                  ? documentToReactComponents(body, richTextOptions)
+                  : <p>內文準備中。</p>
+                }
               </div>
             </div>
           </div>

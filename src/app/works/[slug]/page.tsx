@@ -5,6 +5,19 @@ import Image from 'next/image'
 import { getWorkBySlug, getAllWorks } from '@/lib/contentful'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
+import { documentToReactComponents, type Options } from '@contentful/rich-text-react-renderer'
+import { BLOCKS, MARKS, type Document } from '@contentful/rich-text-types'
+
+const descriptionOptions: Options = {
+  renderMark: {
+    [MARKS.BOLD]: (text) => <strong>{text}</strong>,
+    [MARKS.ITALIC]: (text) => <em>{text}</em>,
+    [MARKS.UNDERLINE]: (text) => <u>{text}</u>,
+  },
+  renderNode: {
+    [BLOCKS.PARAGRAPH]: (_node, children) => <p className="mb-4 last:mb-0">{children}</p>,
+  },
+}
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -40,7 +53,7 @@ export default async function WorkDetailPage({ params }: Props) {
   let fabric = ''
   let fabricOrigin = ''
   let composition = ''
-  let description = ''
+  let description: Document | null = null
   let heroImageUrl = ''
 
   try {
@@ -53,7 +66,7 @@ export default async function WorkDetailPage({ params }: Props) {
     fabric = String(f.fabric ?? fabric)
     fabricOrigin = String(f.fabricOrigin ?? fabricOrigin)
     composition = String(f.composition ?? composition)
-    description = String(f.description ?? description)
+    description = (f.description as Document) ?? null
     const img = f.heroImage as { fields?: { file?: { url?: string } } } | undefined
     const url = img?.fields?.file?.url ?? ''
     heroImageUrl = url ? (url.startsWith('//') ? `https:${url}` : url) : ''
@@ -82,7 +95,7 @@ export default async function WorkDetailPage({ params }: Props) {
             <div className="w-12 h-[1px] bg-[#D4C6FC] mb-8 md:mb-10" />
             {description && (
               <div className="font-inter font-light text-[14px] leading-[1.9] text-[#3D4C55] max-w-[400px] mb-8 md:mb-10">
-                <p>{description}</p>
+                {documentToReactComponents(description, descriptionOptions)}
               </div>
             )}
             <div className="grid grid-cols-2 gap-x-6 md:gap-x-8 gap-y-5 md:gap-y-6 border border-[#D9D9EC] p-6 md:p-8 mb-8 md:mb-10">
